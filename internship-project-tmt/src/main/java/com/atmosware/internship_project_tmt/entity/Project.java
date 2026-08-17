@@ -1,0 +1,32 @@
+package com.atmosware.internship_project_tmt.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "projects")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Project {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    private String description;
+
+    private LocalDateTime createdDate;
+
+    private String createdBy;
+
+    // Project 1 - N Task ilişkisi
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<Task> tasks;
+}
