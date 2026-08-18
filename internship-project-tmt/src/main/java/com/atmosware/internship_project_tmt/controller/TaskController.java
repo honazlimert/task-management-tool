@@ -7,6 +7,11 @@ import com.atmosware.internship_project_tmt.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import com.atmosware.internship_project_tmt.dto.request.CreateTaskRequest;
+import com.atmosware.internship_project_tmt.dto.response.TaskResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 
 @RestController
@@ -18,14 +23,15 @@ public class TaskController {
 
     // POST /api/tasks
     @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task);
+    public ResponseEntity<TaskResponse> createTask(@RequestBody CreateTaskRequest request) {
+        TaskResponse createdTask = taskService.createTask(request);
+        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
     // GET /api/tasks
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public ResponseEntity<List<TaskResponse>> getAllTasks() {
+        return ResponseEntity.ok(taskService.getAllTasks());
     }
 
     // GET /api/tasks/{id}
