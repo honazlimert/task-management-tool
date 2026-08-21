@@ -4,6 +4,7 @@ import com.atmosware.internship_project_tmt.entity.Task;
 import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +24,10 @@ public class TaskController {
 
     // POST /api/tasks
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(@RequestBody CreateTaskRequest request) {
-        TaskResponse createdTask = taskService.createTask(request);
-        return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
+    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request) {
+        return new ResponseEntity<>(taskService.createTask(request), HttpStatus.CREATED);
+        // Yeni görev oluştuğunda 201 CREATED
+        // <TaskResponse> zaten belirtmistik, ici bu sebeple bos
     }
 
     // GET /api/tasks

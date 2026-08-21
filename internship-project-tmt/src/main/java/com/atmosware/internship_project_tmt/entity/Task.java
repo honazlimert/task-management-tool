@@ -33,7 +33,7 @@ public class Task {
 
     // Görevin bağlı olduğu proje (N - 1 ilişkisi)
     @ManyToOne
-    @JoinColumn(name = "project_id")  // (Foreign Key)
+    @JoinColumn(name = "project_id")  // yeni bir sütun ve foreign key'ler oluşturur
 
     private Project project;
 

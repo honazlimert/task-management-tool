@@ -9,12 +9,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateTaskRequest {
+
+    @NotBlank(message = "Task title boş bırakılamaz.")
     private String title;
+
     private String description;
+
     private Priority priority;
+
+    @Min(value = 1, message = "Story Point en az 1 olmalıdır.")
+    @Max(value = 13, message = "Story Point en fazla 13 olmalıdır.")
     private Integer storyPoint;
+
     private Long projectId;
+
     private Long assigneeId;
+
     // task id'yi db oluşturacak
     // createdDate sistem oluşturacak
     // varsayılan task status todo olacak

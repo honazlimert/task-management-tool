@@ -27,6 +27,7 @@ public class Project {
     private String createdBy;
 
     // Project 1 - N Task ilişkisi
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)  // relational databases
+    // ana varlık (project) üzerinde yapılan db işlemlerini, alt varlıklara (task) otomatik olarak yansıtır
     private List<Task> tasks;
 }

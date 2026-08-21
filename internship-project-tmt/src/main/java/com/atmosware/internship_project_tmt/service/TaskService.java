@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +37,7 @@ public class TaskService {
         }
 
         // Kullanıcının gönderdiği assigneeId ile veritabanından gerçek kullanıcıyı bul ve set et
-        if (request.getAssigneeId() != null) {
+        if (!Objects.isNull(request.getAssigneeId()) ) {
             User assignee = userRepository.findById(request.getAssigneeId()).orElse(null);
             task.setAssignee(assignee);
         }

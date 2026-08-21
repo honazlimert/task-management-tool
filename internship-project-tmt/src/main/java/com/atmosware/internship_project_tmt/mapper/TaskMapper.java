@@ -11,18 +11,18 @@ import org.springframework.stereotype.Component;
 // yapıcı metod public olmak zorundadır
 public class TaskMapper {
 
-    // 1. DTO'dan Entity'ye Çeviri (Yeni görev oluştururken kullanacağız)
+    // dto to entity
     public Task mapToEntity(CreateTaskRequest request) {
         Task task = new Task();
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setPriority(request.getPriority());
         task.setStoryPoint(request.getStoryPoint());
-        // projectId ve assigneeId'yi kullanarak, Project ve User nesnelerini service katmanında db'den alıp ekleyeceğiz.
+        // projectId ve assigneeId'yi kullanarak, project ve user nesnelerini service katmanında db'den alıp ekleyeceğiz.
         return task;
     }
 
-    // 2. Entity'den DTO'ya Çeviri (Kullanıcıya cevap dönerken kullanacağız)
+    // entity to dto
     public TaskResponse mapToResponse(Task task) {
         TaskResponse response = new TaskResponse();
         response.setId(task.getId());
@@ -33,12 +33,10 @@ public class TaskMapper {
         response.setStoryPoint(task.getStoryPoint());
         response.setCreatedDate(task.getCreatedDate());
 
-        // Proje atanmışsa sadece adını DTO'ya koyuyoruz
         if (task.getProject() != null) {
             response.setProjectName(task.getProject().getName());
         }
 
-        // Kişi atanmışsa adını ve soyadını birleştirip DTO'ya koyuyoruz
         if (task.getAssignee() != null) {
             response.setAssignee(task.getAssignee().getName() + " " + task.getAssignee().getSurname());
         }
