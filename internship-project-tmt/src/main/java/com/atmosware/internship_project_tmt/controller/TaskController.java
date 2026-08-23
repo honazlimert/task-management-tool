@@ -2,6 +2,7 @@ package com.atmosware.internship_project_tmt.controller;
 
 import com.atmosware.internship_project_tmt.entity.Task;
 import com.atmosware.internship_project_tmt.entity.User;
+import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.service.TaskService;
 import jakarta.validation.Valid;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -32,8 +35,16 @@ public class TaskController {
 
     // GET /api/tasks
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTasks() {
-        return ResponseEntity.ok(taskService.getAllTasks());
+    public ResponseEntity<Page<TaskResponse>> getAllTasks(
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) Priority priority,
+            @RequestParam(required = false) Long projectId,
+            @RequestParam(required = false) Long assigneeId,
+            // "required = false" zorunluluk olmaktan çıkarttık
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        return ResponseEntity.ok(taskService.getAllTasks(status, priority, projectId, assigneeId, page, size));
     }
 
     // GET /api/tasks/{id}

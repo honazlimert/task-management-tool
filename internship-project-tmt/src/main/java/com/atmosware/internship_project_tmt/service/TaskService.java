@@ -5,6 +5,7 @@ import com.atmosware.internship_project_tmt.dto.response.TaskResponse;
 import com.atmosware.internship_project_tmt.entity.Project;
 import com.atmosware.internship_project_tmt.entity.Task;
 import com.atmosware.internship_project_tmt.entity.User;
+import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.mapper.TaskMapper;
 import com.atmosware.internship_project_tmt.repository.ProjectRepository;
@@ -12,6 +13,10 @@ import com.atmosware.internship_project_tmt.repository.TaskRepository;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,12 +52,14 @@ public class TaskService {
         return taskMapper.mapToResponse(savedTask);
     }
 
-    public List<TaskResponse> getAllTasks() {
-        List<Task> tasks = taskRepository.findAll();
+    // filtre parametrelerini metodun imzasına ekliyoruz
+    public Page<TaskResponse> getAllTasks(Status status, Priority priority, Long projectId, Long assigneeId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
 
-        return tasks.stream()
-                .map(taskMapper::mapToResponse)
-                .collect(Collectors.toList());
+        // findAll yerine dinamik sorguyu çağırıyoruz
+        Page<Task> taskPage = taskRepository.findByFilters(status, priority, projectId, assigneeId, pageable);
+
+        return taskPage.map(taskMapper::mapToResponse);
     }
 
     public Task getTaskById(Long id) {
