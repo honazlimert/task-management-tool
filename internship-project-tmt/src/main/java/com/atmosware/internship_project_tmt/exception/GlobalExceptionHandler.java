@@ -24,6 +24,28 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    // ProejctNotFoundException'ı yakalayan metot (404 Not Found)
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleProjectNotFoundException(ProjectNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    // UserNotFoundException'ı yakalayan metot (404 Not Found)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotFoundException(UserNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     // (@Valid) hatalarını yakalayan metot (400 Bad Request)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -33,6 +55,17 @@ public class GlobalExceptionHandler {
         String errorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
 
         response.put("message", errorMessage);
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // InvalidTaskStatus'ı yakalayan metot (400 Bad Request)
+    @ExceptionHandler(InvalidTaskStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidTaskStatusException(InvalidTaskStatusException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("timestamp", LocalDateTime.now());
 

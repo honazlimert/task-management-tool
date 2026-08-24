@@ -7,6 +7,10 @@ import com.atmosware.internship_project_tmt.entity.Task;
 import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
+import com.atmosware.internship_project_tmt.exception.InvalidTaskStatusException;
+import com.atmosware.internship_project_tmt.exception.ProjectNotFoundException;
+import com.atmosware.internship_project_tmt.exception.TaskNotFoundException;
+import com.atmosware.internship_project_tmt.exception.UserNotFoundException;
 import com.atmosware.internship_project_tmt.mapper.TaskMapper;
 import com.atmosware.internship_project_tmt.repository.ProjectRepository;
 import com.atmosware.internship_project_tmt.repository.TaskRepository;
@@ -32,8 +36,26 @@ public class TaskService {
     private final TaskMapper taskMapper;             // Dönüştürücümüzü ekledik
 
     public TaskResponse createTask(CreateTaskRequest request) {
-        // Mapper ile gelen DTO'yu Entity'ye çevir (İçinde henüz proje ve kullanıcı yok)
+
+        // dto to entity
         Task task = taskMapper.mapToEntity(request);
+
+        // varsayılan status "todo"
+        task.setStatus(Status.TODO);
+
+        // project yoksa hata fırlat
+        if (request.getProjectId() != null) {
+            Project project = projectRepository.findById(request.getProjectId())
+                    .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + request.getProjectId()));
+            task.setProject(project);
+        }
+
+        // asignee yoksa hata fırlat
+        if (request.getAssigneeId() != null) {
+            User assignee = userRepository.findById(request.getAssigneeId())
+                    .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + request.getAssigneeId()));
+            task.setAssignee(assignee);
+        }
 
         // Kullanıcının gönderdiği projectId ile veritabanından gerçek projeyi bul ve set et
         if (request.getProjectId() != null) {
@@ -82,13 +104,20 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public Task updateTaskStatus(Long id, Status newStatus) {
-        Task existingTask = taskRepository.findById(id).orElse(null);
-        if (existingTask != null) {
-            existingTask.setStatus(newStatus);
-            return taskRepository.save(existingTask);
+    public TaskResponse updateTaskStatus(Long id, Status newStatus) {
+
+        // task db'de yoksa hata fırlat
+        Task existingTask = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Görev bulunamadı: " + id));
+
+        // done status todo yapılamaz
+        if (existingTask.getStatus() == Status.DONE && newStatus == Status.TODO) {
+            throw new InvalidTaskStatusException("DONE olan bir görev tekrar TODO durumuna alınamaz.");
         }
-        return null;
+
+        existingTask.setStatus(newStatus);
+        Task savedTask = taskRepository.save(existingTask);
+
+        return taskMapper.mapToResponse(savedTask);
     }
 
     public Task updateTaskAssignee(Long id, User newAssignee) {
