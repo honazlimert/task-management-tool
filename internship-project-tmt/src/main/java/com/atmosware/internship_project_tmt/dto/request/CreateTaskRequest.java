@@ -1,6 +1,9 @@
 package com.atmosware.internship_project_tmt.dto.request;
 
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

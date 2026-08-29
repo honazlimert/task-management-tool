@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder; // SecurityConfig'de oluşturduğumuz şifreleyici
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     // register
     public String register(RegisterRequest request) {
@@ -46,7 +47,7 @@ public class AuthService {
             throw new RuntimeException("Hatalı şifre!");
         }
 
-        // buraya JWT Token eklenecek
-        return "Giriş başarılı! Hoş geldiniz.";
+        // sifre dogruysa jwt uret ve teslim et
+        return jwtService.generateToken(user.getEmail());
     }
 }
