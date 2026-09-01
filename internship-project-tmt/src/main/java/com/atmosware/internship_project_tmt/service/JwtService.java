@@ -17,11 +17,11 @@ public class JwtService {
     // generate token
     public String generateToken(String email) {
         return Jwts.builder()
-                .subject(email) // Biletin kime ait olduğu (Kullanıcının e-postası)
-                .issuedAt(new Date(System.currentTimeMillis())) // Veriliş tarihi
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 Saat geçerlilik süresi
-                .signWith(getSigningKey()) // Bileti mühürle
-                .compact();
+                .subject(email) // user e-mail
+                .issuedAt(new Date(System.currentTimeMillis())) // veriliş tarihi
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 saat geçerlilik süresi
+                .signWith(getSigningKey()) // secret key ile imzala
+                .compact(); // JSON web token metnine dönüştür
     }
 
     // extract e-mail

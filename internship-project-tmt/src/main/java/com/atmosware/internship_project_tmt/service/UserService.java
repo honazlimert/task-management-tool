@@ -8,10 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor // (Lombok)
-// Dependency Injection
-// "Bu sınıftaki final olarak işaretlenmiş her şey bir bağımlılıktır
-//  Proje başlarken bunları bul ve bu sınıfın içine enjekte et."
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;

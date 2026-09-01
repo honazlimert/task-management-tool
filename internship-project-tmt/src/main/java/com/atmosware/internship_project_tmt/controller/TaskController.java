@@ -7,6 +7,7 @@ import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.atmosware.internship_project_tmt.dto.request.CreateTaskRequest;
@@ -26,11 +27,12 @@ public class TaskController {
     private final TaskService taskService;
 
     // POST /api/tasks
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    // Hem USER hem de ADMIN görev oluşturabilir
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request) {
         return new ResponseEntity<>(taskService.createTask(request), HttpStatus.CREATED);
         // Yeni görev oluştuğunda 201 CREATED
-        // <TaskResponse> zaten belirtmistik, ici bu sebeple bos
     }
 
     // GET /api/tasks

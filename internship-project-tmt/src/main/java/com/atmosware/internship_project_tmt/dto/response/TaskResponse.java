@@ -22,5 +22,4 @@ public class TaskResponse {
     private String projectName; // project nesnesi yerine sadece ismi dönüyoruz
     private String assignee; // user nesnesi yerine sadece isim dönüyoruz
     private LocalDateTime createdDate;
-    // dönüşümler mapper'da yapılacak
 }

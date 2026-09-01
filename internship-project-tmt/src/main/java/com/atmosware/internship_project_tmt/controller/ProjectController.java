@@ -3,6 +3,7 @@ package com.atmosware.internship_project_tmt.controller;
 import com.atmosware.internship_project_tmt.entity.Project;
 import com.atmosware.internship_project_tmt.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,8 @@ public class ProjectController {
     private final ProjectService projectService;
 
     // POST /api/projects
+    @PreAuthorize("hasRole('ADMIN')")
+    // Sadece yetkisi ADMIN olanlar yeni proje açabilir
     @PostMapping
     public Project createProject(@RequestBody Project project) {
         return projectService.createProject(project);
@@ -33,6 +36,8 @@ public class ProjectController {
     }
 
     // DELETE /api/projects/{id}
+    @PreAuthorize("hasRole('ADMIN')")
+    // Sadece yetkisi ADMIN olanlar proje silebilir
     @DeleteMapping("/{id}")
     public void deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
