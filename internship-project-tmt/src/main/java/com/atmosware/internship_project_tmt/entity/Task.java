@@ -47,4 +47,9 @@ public class Task {
     private LocalDateTime createdDate;
 
     private LocalDateTime updatedDate;
+
+    // optimistic locking
+    @Version
+    private Long version;
+
 }

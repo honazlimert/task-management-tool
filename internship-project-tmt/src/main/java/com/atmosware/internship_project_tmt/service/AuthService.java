@@ -2,8 +2,10 @@ package com.atmosware.internship_project_tmt.service;
 
 import com.atmosware.internship_project_tmt.dto.request.RegisterRequest;
 import com.atmosware.internship_project_tmt.dto.request.LoginRequest;
+import com.atmosware.internship_project_tmt.dto.response.UserResponse;
 import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.entity.enums.Role;
+import com.atmosware.internship_project_tmt.mapper.UserMapper;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,25 +18,21 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserMapper userMapper;
 
     // register
-    public String register(RegisterRequest request) {
+    public UserResponse register(RegisterRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Bu e-posta adresi zaten kullanılıyor!");
         }
 
-        User user = new User();
-        user.setName(request.getName());
-        user.setSurname(request.getSurname());
-        user.setEmail(request.getEmail());
-
+        User user = userMapper.mapToEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword())); // hashing
         user.setRole(Role.USER); // varsayılan rol "user"
 
-        userRepository.save(user);
-
-        return "Kullanıcı başarıyla kaydedildi!";
+        User savedUser = userRepository.save(user);
+        return userMapper.mapToResponse(savedUser);
     }
 
     // login

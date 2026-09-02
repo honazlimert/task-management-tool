@@ -1,8 +1,12 @@
 package com.atmosware.internship_project_tmt.controller;
 
-import com.atmosware.internship_project_tmt.entity.Project;
+import com.atmosware.internship_project_tmt.dto.request.CreateProjectRequest;
+import com.atmosware.internship_project_tmt.dto.response.ProjectResponse;
 import com.atmosware.internship_project_tmt.service.ProjectService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,29 +21,28 @@ public class ProjectController {
 
     // POST /api/projects
     @PreAuthorize("hasRole('ADMIN')")
-    // Sadece yetkisi ADMIN olanlar yeni proje açabilir
     @PostMapping
-    public Project createProject(@RequestBody Project project) {
-        return projectService.createProject(project);
+    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody CreateProjectRequest request) {
+        return new ResponseEntity<>(projectService.createProject(request), HttpStatus.CREATED);
     }
 
     // GET /api/projects
     @GetMapping
-    public List<Project> getAllProjects() {
-        return projectService.getAllProjects();
+    public ResponseEntity<List<ProjectResponse>> getAllProjects() {
+        return ResponseEntity.ok(projectService.getAllProjects());
     }
 
     // GET /api/projects/{id}
     @GetMapping("/{id}")
-    public Project getProjectById(@PathVariable Long id) {
-        return projectService.getProjectById(id);
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
+        return ResponseEntity.ok(projectService.getProjectById(id));
     }
 
     // DELETE /api/projects/{id}
     @PreAuthorize("hasRole('ADMIN')")
-    // Sadece yetkisi ADMIN olanlar proje silebilir
     @DeleteMapping("/{id}")
-    public void deleteProject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
+        return ResponseEntity.noContent().build();
     }
 }

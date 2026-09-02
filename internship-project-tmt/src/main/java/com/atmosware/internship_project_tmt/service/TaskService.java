@@ -26,9 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -89,18 +87,21 @@ public class TaskService {
         return taskPage.map(taskMapper::mapToResponse);
     }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElse(null);
+    public TaskResponse getTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Görev bulunamadı!"));
+        return taskMapper.mapToResponse(task);
     }
 
-    public Task updateTask(Long id, Task updatedTask) {
+    public TaskResponse updateTask(Long id, Task updatedTask) {
         Task existingTask = taskRepository.findById(id).orElse(null);
         if (existingTask != null) {
             existingTask.setTitle(updatedTask.getTitle());
             existingTask.setDescription(updatedTask.getDescription());
             existingTask.setPriority(updatedTask.getPriority());
             existingTask.setStoryPoint(updatedTask.getStoryPoint());
-            return taskRepository.save(existingTask);
+            Task savedTask = taskRepository.save(existingTask);
+            return taskMapper.mapToResponse(savedTask);
         }
         return null;
     }
@@ -139,11 +140,13 @@ public class TaskService {
         return taskMapper.mapToResponse(savedTask);
     }
 
-    public Task updateTaskAssignee(Long id, User newAssignee) {
+    public TaskResponse updateTaskAssignee(Long id, User newAssignee) {
         Task existingTask = taskRepository.findById(id).orElse(null);
         if (existingTask != null) {
             existingTask.setAssignee(newAssignee);
-            return taskRepository.save(existingTask);
+            Task savedTask = taskRepository.save(existingTask);
+            // entity to dto
+            return taskMapper.mapToResponse(savedTask);
         }
         return null;
     }
