@@ -3,14 +3,12 @@ package com.atmosware.internship_project_tmt.dto.request;
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.validation.ValidStoryPoint;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class CreateTaskRequest {
+@Getter
+@Setter
+public class UpdateTaskRequest {
 
     @NotBlank(message = "Task title boş bırakılamaz.")
     private String title;
@@ -21,12 +19,4 @@ public class CreateTaskRequest {
 
     @ValidStoryPoint
     private Integer storyPoint;
-
-    private Long projectId;
-
-    private Long assigneeId;
-
-    // task id'yi db oluşturacak
-    // createdDate sistem oluşturacak
-    // varsayılan task status todo olacak
 }

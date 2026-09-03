@@ -1,0 +1,26 @@
+$kind: http-request
+description: ""
+url: http://localhost:8080/api/tasks
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"title\": \"Validation Test Görevi\",\r
+
+    \  \"description\": \"Fibonacci kuralının test edilmesi.\",\r
+
+    \  \"priority\": \"HIGH\",\r
+
+    \  \"storyPoint\": 3,\r
+
+    \  \"projectId\": 1,\r
+
+    \  \"assigneeId\": 1\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_15pc}}"
+order: 1629875182013432

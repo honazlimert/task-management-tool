@@ -1,6 +1,7 @@
 package com.atmosware.internship_project_tmt.service;
 
 import com.atmosware.internship_project_tmt.dto.request.CreateTaskRequest;
+import com.atmosware.internship_project_tmt.dto.request.UpdateTaskRequest;
 import com.atmosware.internship_project_tmt.dto.response.TaskResponse;
 import com.atmosware.internship_project_tmt.entity.Project;
 import com.atmosware.internship_project_tmt.entity.Task;
@@ -39,7 +40,6 @@ public class TaskService {
     private final TaskMapper taskMapper;
 
     public TaskResponse createTask(CreateTaskRequest request) {
-
         // dto to entity
         Task task = taskMapper.mapToEntity(request);
 
@@ -60,50 +60,58 @@ public class TaskService {
             task.setAssignee(assignee);
         }
 
-        // Kullanıcının gönderdiği projectId ile veritabanından gerçek projeyi bul ve set et
+        // projectId ile veritabanından projeyi bul ve set et
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId()).orElse(null);
             task.setProject(project);
         }
 
-        // Kullanıcının gönderdiği assigneeId ile veritabanından gerçek kullanıcıyı bul ve set et
+        // assigneeId ile veritabanından kullanıcıyı bul ve set et
         if (!Objects.isNull(request.getAssigneeId()) ) {
             User assignee = userRepository.findById(request.getAssigneeId()).orElse(null);
             task.setAssignee(assignee);
         }
 
+        // kaydet ve response dto'ya çevir
         Task savedTask = taskRepository.save(task);
-
         return taskMapper.mapToResponse(savedTask);
     }
 
     // filtre parametrelerini metodun imzasına ekliyoruz
     public Page<TaskResponse> getAllTasks(Status status, Priority priority, Long projectId, Long assigneeId, int page, int size) {
+        // pageable
         Pageable pageable = PageRequest.of(page, size);
 
         // findAll yerine dinamik sorguyu çağırıyoruz
         Page<Task> taskPage = taskRepository.findByFilters(status, priority, projectId, assigneeId, pageable);
 
+        // response dto'ya çevir
         return taskPage.map(taskMapper::mapToResponse);
     }
 
     public TaskResponse getTaskById(Long id) {
+        // task db'de yoksa hata fırlat
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Görev bulunamadı!"));
+
+        // response dto'ya çevir
         return taskMapper.mapToResponse(task);
     }
 
-    public TaskResponse updateTask(Long id, Task updatedTask) {
-        Task existingTask = taskRepository.findById(id).orElse(null);
-        if (existingTask != null) {
-            existingTask.setTitle(updatedTask.getTitle());
-            existingTask.setDescription(updatedTask.getDescription());
-            existingTask.setPriority(updatedTask.getPriority());
-            existingTask.setStoryPoint(updatedTask.getStoryPoint());
-            Task savedTask = taskRepository.save(existingTask);
-            return taskMapper.mapToResponse(savedTask);
-        }
-        return null;
+    public TaskResponse updateTask(Long id, UpdateTaskRequest request) {
+        // task db'de yoksa hata fırlat
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException("Güncellenecek görev bulunamadı: " + id));
+
+        // dto'dan gelen yeni değerleri mevcut göreve set et
+        existingTask.setTitle(request.getTitle());
+        existingTask.setDescription(request.getDescription());
+        existingTask.setPriority(request.getPriority());
+        existingTask.setStoryPoint(request.getStoryPoint());
+
+        // kaydet ve response dto'ya çevir
+        Task savedTask = taskRepository.save(existingTask);
+        return taskMapper.mapToResponse(savedTask);
     }
 
     public void deleteTask(Long id) {
@@ -112,7 +120,6 @@ public class TaskService {
 
     @Transactional
     public TaskResponse updateTaskStatus(Long id, Status newStatus) {
-
         // task db'de yoksa hata fırlat
         Task existingTask = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Görev bulunamadı: " + id));
 
@@ -124,6 +131,7 @@ public class TaskService {
             throw new InvalidTaskStatusException("DONE olan bir görev tekrar TODO durumuna alınamaz.");
         }
 
+        // kaydet
         existingTask.setStatus(newStatus);
         Task savedTask = taskRepository.save(existingTask);
 
@@ -134,20 +142,24 @@ public class TaskService {
         history.setNewStatus(newStatus);
         history.setChangedBy("Sistem Kullanıcısı"); // security eklenene kadar geçici değer
         history.setChangedDate(LocalDateTime.now());
-
         taskHistoryRepository.save(history);
 
+        // response dto'ya çevir
         return taskMapper.mapToResponse(savedTask);
     }
 
-    public TaskResponse updateTaskAssignee(Long id, User newAssignee) {
-        Task existingTask = taskRepository.findById(id).orElse(null);
-        if (existingTask != null) {
-            existingTask.setAssignee(newAssignee);
-            Task savedTask = taskRepository.save(existingTask);
-            // entity to dto
-            return taskMapper.mapToResponse(savedTask);
-        }
-        return null;
+    public TaskResponse updateTaskAssignee(Long id, Long assigneeId) {
+        // task db'de yoksa hata fırlat
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException("Görev bulunamadı: " + id));
+
+        // asignee db'de yoksa hata fırlat
+        User newAssignee = userRepository.findById(assigneeId)
+                .orElseThrow(() -> new UserNotFoundException("Atanacak kullanıcı bulunamadı: " + assigneeId));
+
+        // kaydet ve response dto'ya çevir
+        existingTask.setAssignee(newAssignee);
+        Task savedTask = taskRepository.save(existingTask);
+        return taskMapper.mapToResponse(savedTask);
     }
 }

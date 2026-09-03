@@ -30,13 +30,25 @@ public class SecurityConfig {
 
     // güvenlik kuralları (filter chain) (controller'a gitmeden önce)
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // swagger UI ve API Docs yollarına herkesin erişmesine izin ver
+                        .requestMatchers(
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+                        // auth uç noktalarına (login, register) izin ver
                         .requestMatchers("/api/auth/**").permitAll()
+                        // kalan tüm istekler için kimlik doğrulaması bekle
                         .anyRequest().authenticated()
                 )
+                // JWT filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -1,7 +1,7 @@
 package com.atmosware.internship_project_tmt.controller;
 
-import com.atmosware.internship_project_tmt.entity.Task;
-import com.atmosware.internship_project_tmt.entity.User;
+import com.atmosware.internship_project_tmt.dto.request.UpdateTaskAssigneeRequest;
+import com.atmosware.internship_project_tmt.dto.request.UpdateTaskRequest;
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.service.TaskService;
@@ -32,13 +32,14 @@ public class TaskController {
     }
 
     // GET /api/tasks
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) Priority priority,
             @RequestParam(required = false) Long projectId,
             @RequestParam(required = false) Long assigneeId,
-            // "required = false" zorunluluk olmaktan çıkarttık
+            // "required = false"
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
@@ -46,16 +47,19 @@ public class TaskController {
     }
 
     // GET /api/tasks/{id}
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
-    // UPDATE TASK REQUEST !!!
     // PUT /api/tasks/{id}
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody Task task) {
-        return ResponseEntity.ok(taskService.updateTask(id, task));
+    public ResponseEntity<TaskResponse> updateTask(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateTaskRequest request) {
+        return ResponseEntity.ok(taskService.updateTask(id, request));
     }
 
     // DELETE /api/tasks/{id}
@@ -66,18 +70,18 @@ public class TaskController {
     }
 
     // PATCH /api/tasks/{id}/status
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id, @RequestParam Status status) {
         return ResponseEntity.ok(taskService.updateTaskStatus(id, status));
     }
 
     // PATCH /api/tasks/{id}/assignee
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PatchMapping("/{id}/assignee")
-    public ResponseEntity<TaskResponse> updateTaskAssignee(@PathVariable Long id, @RequestBody User assignee) {
-        TaskResponse response = taskService.updateTaskAssignee(id, assignee);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(response);
+    public ResponseEntity<TaskResponse> updateTaskAssignee(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateTaskAssigneeRequest request) {
+        return ResponseEntity.ok(taskService.updateTaskAssignee(id, request.getAssigneeId()));
     }
 }

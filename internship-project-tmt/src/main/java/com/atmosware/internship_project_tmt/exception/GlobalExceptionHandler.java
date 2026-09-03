@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice // tüm controller exception'ları burada
+@SuppressWarnings("unused")
+@RestControllerAdvice(basePackages = "com.atmosware.internship_project_tmt.controller")
+// tüm controller exception'ları burada
 public class GlobalExceptionHandler {
 
     // TaskNotFoundException'ı yakalayan metot (404 Not Found)
@@ -52,7 +54,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
 
         // Sadece ilk hatanın mesajını alıp dokümandaki formata uyduruyoruz
-        String errorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        String errorMessage = ex.getBindingResult().getFieldErrors().getFirst().getDefaultMessage();
 
         response.put("message", errorMessage);
         response.put("status", HttpStatus.BAD_REQUEST.value());
