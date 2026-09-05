@@ -1,5 +1,6 @@
 package com.atmosware.internship_project_tmt.config;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,18 +35,17 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // swagger UI ve API Docs yollarına herkesin erişmesine izin ver
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/error"
                         ).permitAll()
-                        // auth uç noktalarına (login, register) izin ver
                         .requestMatchers("/api/auth/**").permitAll()
-                        // kalan tüm istekler için kimlik doğrulaması bekle
                         .anyRequest().authenticated()
                 )
                 // JWT filter

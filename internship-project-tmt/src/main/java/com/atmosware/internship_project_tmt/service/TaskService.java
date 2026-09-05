@@ -92,7 +92,7 @@ public class TaskService {
     public TaskResponse getTaskById(Long id) {
         // task db'de yoksa hata fırlat
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Görev bulunamadı!"));
+                .orElseThrow(() -> new TaskNotFoundException("Görev bulunamadı!"));
 
         // response dto'ya çevir
         return taskMapper.mapToResponse(task);

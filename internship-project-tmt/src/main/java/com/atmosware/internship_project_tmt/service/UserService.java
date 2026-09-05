@@ -3,6 +3,7 @@ package com.atmosware.internship_project_tmt.service;
 import com.atmosware.internship_project_tmt.dto.request.CreateUserRequest;
 import com.atmosware.internship_project_tmt.dto.response.UserResponse;
 import com.atmosware.internship_project_tmt.entity.User;
+import com.atmosware.internship_project_tmt.exception.UserNotFoundException;
 import com.atmosware.internship_project_tmt.mapper.UserMapper;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class UserService {
 
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı!"));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı!"));
         return userMapper.mapToResponse(user);
     }
 

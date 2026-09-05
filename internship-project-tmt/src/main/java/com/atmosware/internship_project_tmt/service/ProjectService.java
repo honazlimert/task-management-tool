@@ -3,6 +3,7 @@ package com.atmosware.internship_project_tmt.service;
 import com.atmosware.internship_project_tmt.dto.request.CreateProjectRequest;
 import com.atmosware.internship_project_tmt.dto.response.ProjectResponse;
 import com.atmosware.internship_project_tmt.entity.Project;
+import com.atmosware.internship_project_tmt.exception.ProjectNotFoundException;
 import com.atmosware.internship_project_tmt.mapper.ProjectMapper;
 import com.atmosware.internship_project_tmt.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class ProjectService {
 
     public ProjectResponse getProjectById(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Proje bulunamadı!"));
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı!"));
         return projectMapper.mapToResponse(project);
     }
 

@@ -5,6 +5,7 @@ import com.atmosware.internship_project_tmt.dto.request.LoginRequest;
 import com.atmosware.internship_project_tmt.dto.response.UserResponse;
 import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.entity.enums.Role;
+import com.atmosware.internship_project_tmt.exception.BusinessException;
 import com.atmosware.internship_project_tmt.mapper.UserMapper;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class AuthService {
     public UserResponse register(RegisterRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Bu e-posta adresi zaten kullanılıyor!");
+            throw new BusinessException("Bu e-posta adresi zaten kullanılıyor!");
         }
 
         User user = userMapper.mapToEntity(request);
@@ -39,10 +40,10 @@ public class AuthService {
     public String login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı!"));
+                .orElseThrow(() -> new BusinessException("Kullanıcı bulunamadı!"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Hatalı şifre!");
+            throw new BusinessException("Hatalı şifre!");
         }
 
         // sifre dogruysa jwt uret ve teslim et

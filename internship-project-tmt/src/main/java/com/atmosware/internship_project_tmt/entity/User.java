@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 
 @Entity  //database table
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 @Data  //getter-setter methods
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
@@ -29,5 +33,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdDate;
 }
