@@ -4,13 +4,10 @@ import com.atmosware.internship_project_tmt.entity.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class CreateUserRequest {
 
     @NotBlank(message = "Ad alanı boş bırakılamaz!")

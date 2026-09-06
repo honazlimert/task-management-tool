@@ -3,15 +3,12 @@ package com.atmosware.internship_project_tmt.dto.response;
 
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class TaskResponse {
     private Long id;
     private String title;

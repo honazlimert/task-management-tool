@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_DB: tmt_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5433:5432" # PostgreSQL ile çakışmaması için 5433 kullanıldı
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  task-management-api:
+    build: .
+    container_name: task-management-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tmt_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

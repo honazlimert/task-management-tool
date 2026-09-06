@@ -6,8 +6,11 @@ import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.service.TaskService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import com.atmosware.internship_project_tmt.dto.request.CreateTaskRequest;
@@ -20,6 +23,7 @@ import org.springframework.data.domain.Page;
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
+@Validated
 public class TaskController {
 
     private final TaskService taskService;
@@ -39,9 +43,11 @@ public class TaskController {
             @RequestParam(required = false) Priority priority,
             @RequestParam(required = false) Long projectId,
             @RequestParam(required = false) Long assigneeId,
-            // "required = false"
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "0")
+            @Min(value = 0, message = "Sayfa numarası 0'dan küçük olamaz!") int page,
+            @RequestParam(defaultValue = "20")
+            @Min(value = 1, message = "Sayfa boyutu en az 1 olmalıdır!")
+            @Max(value = 100, message = "Sayfa boyutu 100'den büyük olamaz!") int size) {
 
         return ResponseEntity.ok(taskService.getAllTasks(status, priority, projectId, assigneeId, page, size));
     }

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling // zamanlanmış görevleri aktif eder (@Scheduled)
-@EnableJpaAuditing // db denetimini otomatikleştirir (@CreatedBy)
+@EnableJpaAuditing(auditorAwareRef = "securityAuditorAware") // db denetimini otomatikleştirir (@CreatedBy)
 @SpringBootApplication
 public class InternshipProjectTmtApplication {
 

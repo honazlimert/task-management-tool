@@ -42,6 +42,9 @@ public class ProjectService {
 
 
     public void deleteProject(Long id) {
+        if (!projectRepository.existsById(id)) {
+            throw new ProjectNotFoundException("Silinecek proje bulunamadı: " + id);
+        }
         projectRepository.deleteById(id);
     }
 }

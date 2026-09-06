@@ -42,6 +42,9 @@ public class UserService {
 
 
     public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("Silinecek kullanıcı bulunamadı: " + id);
+        }
         userRepository.deleteById(id);
     }
 }

@@ -1,5 +1,6 @@
 package com.atmosware.internship_project_tmt.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -91,6 +92,19 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
 
         response.put("message", "Gönderilen veri formatı hatalı veya geçersiz bir değer içeriyor.");
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, Object> response = new HashMap<>();
+
+        String errorMessage = ex.getConstraintViolations().iterator().next().getMessage();
+
+        response.put("message", errorMessage);
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("timestamp", LocalDateTime.now());
 

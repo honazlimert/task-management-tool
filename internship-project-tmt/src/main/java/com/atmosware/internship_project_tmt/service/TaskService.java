@@ -18,7 +18,9 @@ import com.atmosware.internship_project_tmt.repository.ProjectRepository;
 import com.atmosware.internship_project_tmt.repository.TaskHistoryRepository;
 import com.atmosware.internship_project_tmt.repository.TaskRepository;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,19 +41,13 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
 
+    @Transactional
     public TaskResponse createTask(CreateTaskRequest request) {
         // dto to entity
         Task task = taskMapper.mapToEntity(request);
 
         // varsayılan status "todo"
         task.setStatus(Status.TODO);
-
-        // project yoksa hata fırlat
-        if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + request.getProjectId()));
-            task.setProject(project);
-        }
 
         // asignee yoksa hata fırlat
         if (request.getAssigneeId() != null) {
@@ -60,23 +56,13 @@ public class TaskService {
             task.setAssignee(assignee);
         }
 
-        // projectId ile veritabanından projeyi bul ve set et
-        if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId()).orElse(null);
-            task.setProject(project);
-        }
-
-        // assigneeId ile veritabanından kullanıcıyı bul ve set et
-        if (!Objects.isNull(request.getAssigneeId()) ) {
-            User assignee = userRepository.findById(request.getAssigneeId()).orElse(null);
-            task.setAssignee(assignee);
-        }
 
         // kaydet ve response dto'ya çevir
         Task savedTask = taskRepository.save(task);
         return taskMapper.mapToResponse(savedTask);
     }
 
+    @Transactional(readOnly = true)
     // filtre parametrelerini metodun imzasına ekliyoruz
     public Page<TaskResponse> getAllTasks(Status status, Priority priority, Long projectId, Long assigneeId, int page, int size) {
         // pageable
@@ -89,6 +75,7 @@ public class TaskService {
         return taskPage.map(taskMapper::mapToResponse);
     }
 
+    @Transactional(readOnly = true)
     public TaskResponse getTaskById(Long id) {
         // task db'de yoksa hata fırlat
         Task task = taskRepository.findById(id)
@@ -98,6 +85,7 @@ public class TaskService {
         return taskMapper.mapToResponse(task);
     }
 
+    @Transactional
     public TaskResponse updateTask(Long id, UpdateTaskRequest request) {
         // task db'de yoksa hata fırlat
         Task existingTask = taskRepository.findById(id)
@@ -115,6 +103,9 @@ public class TaskService {
     }
 
     public void deleteTask(Long id) {
+        if (!taskRepository.existsById(id)) {
+            throw new TaskNotFoundException("Silinecek görev bulunamadı: " + id);
+        }
         taskRepository.deleteById(id);
     }
 
@@ -126,9 +117,15 @@ public class TaskService {
         // eski status'ı not alıyoruz
         Status oldStatus = existingTask.getStatus();
 
-        // done status todo yapılamaz
-        if (existingTask.getStatus() == Status.DONE && newStatus == Status.TODO) {
-            throw new InvalidTaskStatusException("DONE olan bir görev tekrar TODO durumuna alınamaz.");
+        // eski durum ile yeni durum aynıysa veritabanını yormadan direkt çıkış yap (Early Return)
+        if (oldStatus == newStatus) {
+            throw new InvalidTaskStatusException("Görev zaten " + newStatus + " durumunda!");
+        }
+
+        // DONE olan bir görev başka hiçbir duruma (TODO veya IN_PROGRESS) alınamaz.
+        // (existingTask.getStatus() çağrısı yerine doğrudan oldStatus kullanıldı)
+        if (oldStatus == Status.DONE) {
+            throw new InvalidTaskStatusException("DONE durumundaki bir görev tekrar değiştirilemez.");
         }
 
         // kaydet
@@ -140,7 +137,14 @@ public class TaskService {
         history.setTaskId(savedTask.getId());
         history.setOldStatus(oldStatus);
         history.setNewStatus(newStatus);
-        history.setChangedBy("Sistem Kullanıcısı"); // security eklenene kadar geçici değer
+
+        // değiştiren kişiyi not al
+        String username = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(Authentication::getName)
+                .orElse("SYSTEM"); // login yapmış kullanıcı yoksa SYSTEM yazar
+        history.setChangedBy(username);
+
+        // değişim tarihini not al
         history.setChangedDate(LocalDateTime.now());
         taskHistoryRepository.save(history);
 
