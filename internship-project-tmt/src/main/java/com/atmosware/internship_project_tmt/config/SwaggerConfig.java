@@ -17,9 +17,9 @@ public class SwaggerConfig {
         return new OpenAPI()
                 // API genel bilgileri
                 .info(new Info()
-                        .title("Mini İş Takip Sistemi API")
+                        .title("İş Takip Sistemi API")
                         .version("1.0")
-                        .description("Atmosware Staj Projesi - Görev ve Proje Yönetimi API Dokümantasyonu"))
+                        .description("Staj Projesi - Görev ve Proje Yönetimi API Dokümantasyonu"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",

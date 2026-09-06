@@ -3,18 +3,15 @@ package com.atmosware.internship_project_tmt.service;
 import com.atmosware.internship_project_tmt.dto.request.CreateTaskRequest;
 import com.atmosware.internship_project_tmt.dto.request.UpdateTaskRequest;
 import com.atmosware.internship_project_tmt.dto.response.TaskResponse;
-import com.atmosware.internship_project_tmt.entity.Project;
 import com.atmosware.internship_project_tmt.entity.Task;
 import com.atmosware.internship_project_tmt.entity.TaskHistory;
 import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.exception.InvalidTaskStatusException;
-import com.atmosware.internship_project_tmt.exception.ProjectNotFoundException;
 import com.atmosware.internship_project_tmt.exception.TaskNotFoundException;
 import com.atmosware.internship_project_tmt.exception.UserNotFoundException;
 import com.atmosware.internship_project_tmt.mapper.TaskMapper;
-import com.atmosware.internship_project_tmt.repository.ProjectRepository;
 import com.atmosware.internship_project_tmt.repository.TaskHistoryRepository;
 import com.atmosware.internship_project_tmt.repository.TaskRepository;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
@@ -37,7 +34,6 @@ public class TaskService {
 
     private final TaskHistoryRepository taskHistoryRepository;
     private final TaskRepository taskRepository;
-    private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
 
@@ -102,6 +98,7 @@ public class TaskService {
         return taskMapper.mapToResponse(savedTask);
     }
 
+    @Transactional
     public void deleteTask(Long id) {
         if (!taskRepository.existsById(id)) {
             throw new TaskNotFoundException("Silinecek görev bulunamadı: " + id);
@@ -152,6 +149,7 @@ public class TaskService {
         return taskMapper.mapToResponse(savedTask);
     }
 
+    @Transactional
     public TaskResponse updateTaskAssignee(Long id, Long assigneeId) {
         // task db'de yoksa hata fırlat
         Task existingTask = taskRepository.findById(id)

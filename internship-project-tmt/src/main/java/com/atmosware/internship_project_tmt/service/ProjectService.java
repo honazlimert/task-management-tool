@@ -8,6 +8,7 @@ import com.atmosware.internship_project_tmt.mapper.ProjectMapper;
 import com.atmosware.internship_project_tmt.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,27 +21,28 @@ public class ProjectService {
     private final ProjectMapper projectMapper;
 
 
+    @Transactional
     public ProjectResponse createProject(CreateProjectRequest request) {
         Project project = projectMapper.mapToEntity(request);
         Project savedProject = projectRepository.save(project);
         return projectMapper.mapToResponse(savedProject);
     }
 
-
+    @Transactional(readOnly = true)
     public List<ProjectResponse> getAllProjects() {
         return projectRepository.findAll().stream()
                 .map(projectMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-
+    @Transactional(readOnly = true)
     public ProjectResponse getProjectById(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı!"));
         return projectMapper.mapToResponse(project);
     }
 
-
+    @Transactional
     public void deleteProject(Long id) {
         if (!projectRepository.existsById(id)) {
             throw new ProjectNotFoundException("Silinecek proje bulunamadı: " + id);

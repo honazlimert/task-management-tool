@@ -11,6 +11,7 @@ import com.atmosware.internship_project_tmt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class AuthService {
     private final UserMapper userMapper;
 
     // register
+    @Transactional
     public UserResponse register(RegisterRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -37,6 +39,7 @@ public class AuthService {
     }
 
     // login
+    @Transactional(readOnly = true)
     public String login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())

@@ -12,6 +12,7 @@ import java.util.Date;
 public class JwtService {
 
     // 256-bit (32 byte) gizli imza anahtarımız (gerçek projelerde gizli tutulur)
+    // environment variable
     private static final String SECRET = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
     // generate token
