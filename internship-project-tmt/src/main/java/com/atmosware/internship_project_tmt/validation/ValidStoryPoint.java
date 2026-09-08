@@ -9,7 +9,6 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = StoryPointValidator.class)
 // kurallar StoryPointValidatior'da
 @Target({ElementType.FIELD})
-// değişkenler sadece field üzerine yazılabilir
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidStoryPoint {
     String message() default "Story Point yalnızca 1, 2, 3, 5, 8, 13 değerlerinden biri olabilir.";

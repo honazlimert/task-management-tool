@@ -7,12 +7,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("unused")
 @RestControllerAdvice(basePackages = "com.atmosware.internship_project_tmt.controller")
 // tüm controller exception'ları burada
 public class GlobalExceptionHandler {
@@ -21,6 +21,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TaskNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleTaskNotFoundException(TaskNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
+
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("timestamp", LocalDateTime.now());
@@ -32,6 +33,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ProjectNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleProjectNotFoundException(ProjectNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
+
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("timestamp", LocalDateTime.now());
@@ -43,6 +45,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFoundException(UserNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
+
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("timestamp", LocalDateTime.now());
@@ -55,9 +58,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, Object> response = new HashMap<>();
 
-        // Sadece ilk hatanın mesajını alıp dokümandaki formata uyduruyoruz
         String errorMessage = ex.getBindingResult().getFieldErrors().getFirst().getDefaultMessage();
-
         response.put("message", errorMessage);
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("timestamp", LocalDateTime.now());
@@ -69,6 +70,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTaskStatusException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidTaskStatusException(InvalidTaskStatusException ex) {
         Map<String, Object> response = new HashMap<>();
+
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("timestamp", LocalDateTime.now());
@@ -80,6 +82,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Map<String, Object>> handleBusinessExceptions(BusinessException ex) {
         Map<String, Object> response = new HashMap<>();
+
         response.put("message", ex.getMessage());
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("timestamp", LocalDateTime.now());
@@ -87,8 +90,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    // Hatalı JSON formatı hatalarını yakalayan metot (400 Bad Request)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException() {
         Map<String, Object> response = new HashMap<>();
 
         response.put("message", "Gönderilen veri formatı hatalı veya geçersiz bir değer içeriyor.");
@@ -98,6 +102,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    // @NotNull, @Size, @Min hatalarını yakalayan metot (400 Bad Request)
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -109,5 +114,17 @@ public class GlobalExceptionHandler {
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // Yetkisiz erişim hatalarını yakalayan metot (403 Forbidden)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException() {
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("message", "Bu işlemi gerçekleştirmek için yeterli yetkiniz bulunmamaktadır.");
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }

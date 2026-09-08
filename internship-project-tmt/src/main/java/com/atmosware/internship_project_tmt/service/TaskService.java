@@ -3,15 +3,18 @@ package com.atmosware.internship_project_tmt.service;
 import com.atmosware.internship_project_tmt.dto.request.CreateTaskRequest;
 import com.atmosware.internship_project_tmt.dto.request.UpdateTaskRequest;
 import com.atmosware.internship_project_tmt.dto.response.TaskResponse;
+import com.atmosware.internship_project_tmt.entity.Project;
 import com.atmosware.internship_project_tmt.entity.Task;
 import com.atmosware.internship_project_tmt.entity.TaskHistory;
 import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.exception.InvalidTaskStatusException;
+import com.atmosware.internship_project_tmt.exception.ProjectNotFoundException;
 import com.atmosware.internship_project_tmt.exception.TaskNotFoundException;
 import com.atmosware.internship_project_tmt.exception.UserNotFoundException;
 import com.atmosware.internship_project_tmt.mapper.TaskMapper;
+import com.atmosware.internship_project_tmt.repository.ProjectRepository;
 import com.atmosware.internship_project_tmt.repository.TaskHistoryRepository;
 import com.atmosware.internship_project_tmt.repository.TaskRepository;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
@@ -35,6 +38,7 @@ public class TaskService {
     private final TaskHistoryRepository taskHistoryRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
     private final TaskMapper taskMapper;
 
     @Transactional
@@ -44,6 +48,11 @@ public class TaskService {
 
         // varsayılan status "todo"
         task.setStatus(Status.TODO);
+
+        // projeyi yoksa hata fırlat
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new ProjectNotFoundException("Proje bulunamadı: " + request.getProjectId()));
+        task.setProject(project);
 
         // asignee yoksa hata fırlat
         if (request.getAssigneeId() != null) {
@@ -120,7 +129,6 @@ public class TaskService {
         }
 
         // DONE olan bir görev başka hiçbir duruma (TODO veya IN_PROGRESS) alınamaz.
-        // (existingTask.getStatus() çağrısı yerine doğrudan oldStatus kullanıldı)
         if (oldStatus == Status.DONE) {
             throw new InvalidTaskStatusException("DONE durumundaki bir görev tekrar değiştirilemez.");
         }

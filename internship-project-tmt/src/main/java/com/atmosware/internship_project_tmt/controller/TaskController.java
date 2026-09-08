@@ -2,6 +2,7 @@ package com.atmosware.internship_project_tmt.controller;
 
 import com.atmosware.internship_project_tmt.dto.request.UpdateTaskAssigneeRequest;
 import com.atmosware.internship_project_tmt.dto.request.UpdateTaskRequest;
+import com.atmosware.internship_project_tmt.dto.request.UpdateTaskStatusRequest;
 import com.atmosware.internship_project_tmt.entity.enums.Priority;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
 import com.atmosware.internship_project_tmt.service.TaskService;
@@ -31,7 +32,8 @@ public class TaskController {
     // POST /api/tasks
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request) {
+    public ResponseEntity<TaskResponse> createTask(
+            @Valid @RequestBody CreateTaskRequest request) {
         return new ResponseEntity<>(taskService.createTask(request), HttpStatus.CREATED);
     }
 
@@ -55,7 +57,8 @@ public class TaskController {
     // GET /api/tasks/{id}
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
-    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
+    public ResponseEntity<TaskResponse> getTaskById(
+            @PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
@@ -70,7 +73,8 @@ public class TaskController {
 
     // DELETE /api/tasks/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(
+            @PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
@@ -78,8 +82,10 @@ public class TaskController {
     // PATCH /api/tasks/{id}/status
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PatchMapping("/{id}/status")
-    public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id, @RequestParam Status status) {
-        return ResponseEntity.ok(taskService.updateTaskStatus(id, status));
+    public ResponseEntity<TaskResponse> updateTaskStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateTaskStatusRequest request) {
+        return ResponseEntity.ok(taskService.updateTaskStatus(id, request.getStatus()));
     }
 
     // PATCH /api/tasks/{id}/assignee
