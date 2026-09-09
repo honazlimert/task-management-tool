@@ -2,6 +2,7 @@ package com.atmosware.internship_project_tmt.service;
 
 import com.atmosware.internship_project_tmt.entity.Task;
 import com.atmosware.internship_project_tmt.entity.enums.Status;
+import com.atmosware.internship_project_tmt.repository.TaskHistoryRepository;
 import com.atmosware.internship_project_tmt.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j  // loglanması amacıyla (lombok)
 @Service
@@ -17,22 +20,28 @@ import java.util.List;
 public class TaskSchedulerService {
 
     private final TaskRepository taskRepository;
+    private final TaskHistoryRepository taskHistoryRepository;
+    private static final Set<Status> STALE_CHECK_STATUSES = EnumSet.of(Status.TODO, Status.IN_PROGRESS);
 
-    // her gece 00:00'da çalışır
     @Scheduled(cron = "0 0 0 * * *")
     public void checkStaleTasks() {
 
-        // 7 gün öncesini hesapla
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 
-        // 7 günden eski ve hala IN_PROGRESS olan görevleri getir
-        List<Task> staleTasks = taskRepository.findByStatusAndUpdatedDateBefore(Status.IN_PROGRESS, sevenDaysAgo);
+        // son status değişikliği 7 günden eski olan task id'leri (status ne olursa olsun)
+        List<Long> staleTaskIds = taskHistoryRepository.findTaskIdsWithNoStatusChangeSince(sevenDaysAgo);
 
-        // businnes rules (loglama)
+        // sadece TODO veya IN_PROGRESS olanları bırak; DONE olanlar hariç tutulur
+        List<Task> staleTasks = taskRepository.findAllById(staleTaskIds).stream()
+                .filter(t -> STALE_CHECK_STATUSES.contains(t.getStatus()))
+                .toList();
+
         if (!staleTasks.isEmpty()) {
             log.warn("DİKKAT! 7 gündür ilerlemeyen {} adet görev bulundu!", staleTasks.size());
             for (Task task : staleTasks) {
-                log.info("Geciken Görev - ID: {}, Başlık: {}", task.getId(), task.getTitle());
+                // hangi durumda takıldığını da logluyoruz (TODO mu IN_PROGRESS mi)
+                log.info("Geciken Görev - ID: {}, Başlık: {}, Durum: {}",
+                        task.getId(), task.getTitle(), task.getStatus());
             }
         }
     }

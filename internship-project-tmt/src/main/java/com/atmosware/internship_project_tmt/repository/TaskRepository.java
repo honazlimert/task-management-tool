@@ -25,5 +25,4 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                              @Param("assigneeId") Long assigneeId,
                              Pageable pageable);
 
-    List<Task> findByStatusAndUpdatedDateBefore(Status status, LocalDateTime date);
 }
