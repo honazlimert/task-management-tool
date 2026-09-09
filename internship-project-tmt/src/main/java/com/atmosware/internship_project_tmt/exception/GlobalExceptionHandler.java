@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.logging.log4j.message.ParameterizedMessage.ERROR_PREFIX;
-
 
 @RestControllerAdvice(basePackages = "com.atmosware.internship_project_tmt.controller")
 // tüm controller exception'ları burada
@@ -70,11 +68,11 @@ public class GlobalExceptionHandler {
     }
 
     // OptimisticLockingException yakalayan metot (409 Conflict)
-    @ExceptionHandler(OptimisticLockingException.class)
-    public ResponseEntity<Map<String, Object>> handleOptimisticLockingFailureException(OptimisticLockingException ex) {
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, Object>> handleOptimisticLockingFailureException() {
         Map<String, Object> response = new HashMap<>();
 
-        response.put("message", ex.getMessage());
+        response.put("message", "Bu görev başka bir kullanıcı tarafından güncellendi, lütfen tekrar deneyin.");
         response.put("status", HttpStatus.CONFLICT.value());
         response.put("timestamp", LocalDateTime.now());
 
@@ -98,7 +96,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, Object> response = new HashMap<>();
 
-        response.put("message", ex.getMessage());
+        String errorMessage = ex.getBindingResult().getFieldErrors().getFirst().getDefaultMessage();
+        response.put("message", errorMessage);
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("timestamp", LocalDateTime.now());
 
@@ -148,7 +147,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleAllUncaughtException(Exception ex) {
         Map<String, Object> response = new HashMap<>();
 
-        response.put("message", ERROR_PREFIX + "Sunucu tarafında beklenmeyen bir hata oluştu. Detay: " + ex.getMessage());
+        response.put("message", "Sunucu tarafında beklenmeyen bir hata oluştu. Detay: " + ex.getMessage());
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("timestamp", LocalDateTime.now());
 
