@@ -72,6 +72,7 @@ public class TaskController {
     }
 
     // DELETE /api/tasks/{id}
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(
             @PathVariable Long id) {

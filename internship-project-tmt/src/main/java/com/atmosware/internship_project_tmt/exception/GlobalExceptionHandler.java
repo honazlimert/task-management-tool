@@ -13,11 +13,15 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.apache.logging.log4j.message.ParameterizedMessage.ERROR_PREFIX;
+
+
 @RestControllerAdvice(basePackages = "com.atmosware.internship_project_tmt.controller")
 // tüm controller exception'ları burada
+
 public class GlobalExceptionHandler {
 
-    // TaskNotFoundException'ı yakalayan metot (404 Not Found)
+    // TaskNotFoundException yakalayan metot (404 Not Found)
     @ExceptionHandler(TaskNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleTaskNotFoundException(TaskNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -29,7 +33,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    // ProejctNotFoundException'ı yakalayan metot (404 Not Found)
+    // ProejctNotFoundException yakalayan metot (404 Not Found)
     @ExceptionHandler(ProjectNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleProjectNotFoundException(ProjectNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -41,7 +45,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    // UserNotFoundException'ı yakalayan metot (404 Not Found)
+    // UserNotFoundException yakalayan metot (404 Not Found)
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFoundException(UserNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -53,20 +57,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    // (@Valid) hatalarını yakalayan metot (400 Bad Request)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
-
-        String errorMessage = ex.getBindingResult().getFieldErrors().getFirst().getDefaultMessage();
-        response.put("message", errorMessage);
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("timestamp", LocalDateTime.now());
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    // InvalidTaskStatus'ı yakalayan metot (400 Bad Request)
+    // InvalidTaskStatus yakalayan metot (400 Bad Request)
     @ExceptionHandler(InvalidTaskStatusException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidTaskStatusException(InvalidTaskStatusException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -78,9 +69,33 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // BusinessException'ı yakalayan metot (400 Bad Request)
+    // OptimisticLockingException yakalayan metot (409 Conflict)
+    @ExceptionHandler(OptimisticLockingException.class)
+    public ResponseEntity<Map<String, Object>> handleOptimisticLockingFailureException(OptimisticLockingException ex) {
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("message", ex.getMessage());
+        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    // BusinessException yakalayan metot (400 Bad Request)
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Map<String, Object>> handleBusinessExceptions(BusinessException ex) {
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("message", ex.getMessage());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // (@Valid) hatalarını yakalayan metot (400 Bad Request)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, Object> response = new HashMap<>();
 
         response.put("message", ex.getMessage());
@@ -126,5 +141,17 @@ public class GlobalExceptionHandler {
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    // Beklenmeyen tüm diğer hataları yakalayan fallback metodu (500 Internal Server Error)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleAllUncaughtException(Exception ex) {
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("message", ERROR_PREFIX + "Sunucu tarafında beklenmeyen bir hata oluştu. Detay: " + ex.getMessage());
+        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -6,6 +6,7 @@ import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.exception.UserNotFoundException;
 import com.atmosware.internship_project_tmt.mapper.UserMapper;
 import com.atmosware.internship_project_tmt.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         User user = userMapper.mapToEntity(request);
+        // Şifreyi encode edip entity'ye atıyoruz
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         User savedUser = userRepository.save(user);
         return userMapper.mapToResponse(savedUser);
     }

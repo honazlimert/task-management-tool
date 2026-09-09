@@ -42,28 +42,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // bearer kelimesini kesip sadece asıl token'i al
         final String jwt = authHeader.substring(7);
 
-        // tokendeki e-mail'i çöz
-        final String userEmail = jwtService.extractEmail(jwt);
 
-        // e-mail geçerliyse ve sistemde o an kimse açık değilse kullanıcıyı içeri al
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
+            // tokendeki e-mail'i çöz
+            final String userEmail = jwtService.extractEmail(jwt);
 
-            // kullanıcıyı db'den bul
-            User user = userRepository.findByEmail(userEmail).orElse(null);
+            // e-mail geçerliyse ve sistemde o an kimse açık değilse kullanıcıyı içeri al
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            if (user != null) {
-                // kullanıcı rolünü uygun formata dönüştür
-                // SimpleGrantedAuthority: kullanımı zorunlu Spring Security özel güvenlik nesnesi
-                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
+                // kullanıcıyı db'den bul
+                User user = userRepository.findByEmail(userEmail).orElse(null);
 
-                // kullanıcıya rolünü ata
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userEmail, null, Collections.singletonList(authority)
-                );
+                if (user != null) {
+                    // kullanıcı rolünü uygun formata dönüştür
+                    // SimpleGrantedAuthority: kullanımı zorunlu Spring Security özel güvenlik nesnesi
+                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // kullanıcıya rolünü ata
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userEmail, null, Collections.singletonList(authority)
+                    );
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        }catch (Exception e) {
+            // Hata yakalandığında JSON yanıtı (401 Unauthorized) dön ve filtre zincirini kır
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(
+                    "{\"status\": 401, \"message\": \"Geçersiz veya süresi dolmuş token!\", \"error\": \"Unauthorized\"}"
+            );
+            return;
         }
+
 
         filterChain.doFilter(request, response);
     }
