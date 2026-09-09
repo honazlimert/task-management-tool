@@ -20,6 +20,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tmt_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
+      - JWT_SECRET=b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
     depends_on:
       - postgres
 

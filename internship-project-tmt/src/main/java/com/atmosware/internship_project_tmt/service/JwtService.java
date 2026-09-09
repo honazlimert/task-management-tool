@@ -3,6 +3,7 @@ package com.atmosware.internship_project_tmt.service;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -11,9 +12,9 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    // 256-bit (32 byte) gizli imza anahtarımız (gerçek projelerde gizli tutulur)
-    // environment variable
-    private static final String SECRET = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+    // enviroment variable'dan secret key'i alır
+    @Value("${security.jwt.secret}")
+    private String secretKey;
 
     // generate token
     public String generateToken(String email) {
@@ -37,7 +38,7 @@ public class JwtService {
 
     // dogrulamada kullanilacak secret key oluşturur
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
