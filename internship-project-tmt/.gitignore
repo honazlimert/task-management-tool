@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### environment variables ###
+# engelle
+.env
+*.env
+# engelleme (repoya dahil et)
+!.env.example

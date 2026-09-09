@@ -2,6 +2,7 @@ package com.atmosware.internship_project_tmt.controller;
 
 import com.atmosware.internship_project_tmt.dto.request.RegisterRequest;
 import com.atmosware.internship_project_tmt.dto.request.LoginRequest;
+import com.atmosware.internship_project_tmt.dto.response.LoginResponse;
 import com.atmosware.internship_project_tmt.dto.response.UserResponse;
 import com.atmosware.internship_project_tmt.service.AuthService;
 import jakarta.validation.Valid;
@@ -23,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 }

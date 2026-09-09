@@ -2,6 +2,7 @@ package com.atmosware.internship_project_tmt.service;
 
 import com.atmosware.internship_project_tmt.dto.request.RegisterRequest;
 import com.atmosware.internship_project_tmt.dto.request.LoginRequest;
+import com.atmosware.internship_project_tmt.dto.response.LoginResponse;
 import com.atmosware.internship_project_tmt.dto.response.UserResponse;
 import com.atmosware.internship_project_tmt.entity.User;
 import com.atmosware.internship_project_tmt.entity.enums.Role;
@@ -40,7 +41,7 @@ public class AuthService {
 
     // login
     @Transactional(readOnly = true)
-    public String login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BusinessException("Kullanıcı bulunamadı!"));
@@ -50,6 +51,7 @@ public class AuthService {
         }
 
         // sifre dogruysa jwt uret ve teslim et
-        return jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getEmail());
+        return new LoginResponse(token);
     }
 }
