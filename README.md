@@ -128,7 +128,7 @@ cp .env.example .env
 | `DB_PASSWORD` | Database password | `change-me` |
 | `JWT_SECRET` | JWT signing key (Base64, at least 256-bit) | `generate-a-strong-256-bit-secret` |
 
-> ⚠️ The `.env` file is listed in `.gitignore` and **must never be committed**. Replace `JWT_SECRET` and `DB_PASSWORD` with strong, randomly generated values in real environments.
+> ⚠️ The `.env` file is listed in `internship-project-tmt/.gitignore` and **must never be committed**. Replace `JWT_SECRET` and `DB_PASSWORD` with strong, randomly generated values in real environments.
 
 ### Running with Docker
 
