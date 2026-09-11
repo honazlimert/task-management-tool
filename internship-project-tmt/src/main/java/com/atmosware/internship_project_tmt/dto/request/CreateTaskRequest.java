@@ -18,6 +18,7 @@ public class CreateTaskRequest {
     @NotNull(message = "Task priority boş bırakılamaz.")
     private Priority priority;
 
+    @NotNull(message = "Task story point boş bırakılamaz.")
     @ValidStoryPoint
     private Integer storyPoint;
 
