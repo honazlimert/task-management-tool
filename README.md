@@ -27,9 +27,7 @@ A Jira-like **Task and Project Management REST API** with JWT-based authenticati
 - [Error Handling](#error-handling)
 - [Testing](#testing)
 - [Project Structure](#project-structure)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
+
 
 ---
 
